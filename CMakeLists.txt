@@ -4,4 +4,15 @@ cmake_minimum_required(VERSION 3.20.0)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(dji_remote)
 
-target_sources(app PRIVATE src/main.c)
+# The directory layout mirrors the original ESP-IDF project
+# (https://github.com/rhoenschrat/DJI-Remote) so both trees can be diffed.
+target_include_directories(app PRIVATE
+    utils/compat
+    utils/crc
+    protocol
+)
+
+target_sources(app PRIVATE
+    src/main.c
+    utils/compat/esp_err.c
+)

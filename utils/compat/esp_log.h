@@ -1,0 +1,27 @@
+/*
+ * ESP-IDF logging compatibility shim.
+ *
+ * Maps the `ESP_LOGx(TAG, ...)` macros used throughout the original
+ * DJI-Remote firmware onto Zephyr's logging subsystem, so that the ported
+ * modules keep their original log statements verbatim.
+ *
+ * Every .c file that logs must still register a Zephyr log module, e.g.:
+ *
+ *     LOG_MODULE_REGISTER(dji_protocol_parser, CONFIG_DJI_REMOTE_LOG_LEVEL);
+ *
+ * The ESP-IDF `TAG` string is kept as a message prefix so that log output
+ * stays comparable with the original firmware.
+ */
+
+#ifndef __ESP_LOG_H__
+#define __ESP_LOG_H__
+
+#include <zephyr/logging/log.h>
+
+#define ESP_LOGE(tag, fmt, ...) LOG_ERR("[" tag "] " fmt, ##__VA_ARGS__)
+#define ESP_LOGW(tag, fmt, ...) LOG_WRN("[" tag "] " fmt, ##__VA_ARGS__)
+#define ESP_LOGI(tag, fmt, ...) LOG_INF("[" tag "] " fmt, ##__VA_ARGS__)
+#define ESP_LOGD(tag, fmt, ...) LOG_DBG("[" tag "] " fmt, ##__VA_ARGS__)
+#define ESP_LOGV(tag, fmt, ...) LOG_DBG("[" tag "] " fmt, ##__VA_ARGS__)
+
+#endif /* __ESP_LOG_H__ */
