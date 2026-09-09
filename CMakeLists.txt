@@ -12,6 +12,7 @@ target_include_directories(app PRIVATE
     protocol
     ble
     data
+    main
 )
 
 target_sources(app PRIVATE
@@ -27,4 +28,5 @@ target_sources(app PRIVATE
     protocol/dji_protocol_data_structures.c
     ble/ble.c
     data/data.c
+    main/promicro_nrf52840_hal.c
 )
