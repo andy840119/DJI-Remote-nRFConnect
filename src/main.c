@@ -1,51 +1,36 @@
+/*
+ * DJI-Remote-nRFConnect -- temporary bring-up entry point.
+ *
+ * This file exists only until main/app_main.c is ported.  It brings up the
+ * BLE layer and runs a pairing scan so the port can be exercised on real
+ * hardware: every DJI camera in range is logged by ble.c and by the pairing
+ * stubs in port_stubs.c.
+ */
+
 #include <zephyr/kernel.h>
-#include <zephyr/drivers/gpio.h>
-#include <zephyr/sys/printk.h>
+#include <zephyr/logging/log.h>
 
-#define LED0_NODE DT_ALIAS(led0)
+#include "ble.h"
 
-#if !DT_NODE_HAS_STATUS(LED0_NODE, okay)
-#error "Unsupported board: led0 alias is not defined"
-#endif
+LOG_MODULE_REGISTER(main, CONFIG_DJI_REMOTE_LOG_LEVEL);
 
-static const struct gpio_dt_spec led =
-    GPIO_DT_SPEC_GET(LED0_NODE, gpios);
+#define SCAN_TIMEOUT_MS 30000
 
 int main(void)
 {
-    int ret;
+	LOG_INF("DJI-Remote-nRFConnect starting");
 
-    printk("\n");
-    printk("=================================\n");
-    printk("Application Started\n");
-    printk("=================================\n");
+	if (ble_init() != ESP_OK) {
+		LOG_ERR("ble_init failed");
+		return 0;
+	}
 
-    if (!gpio_is_ready_dt(&led)) {
-        printk("LED GPIO not ready\n");
-        return 0;
-    }
+	while (1) {
+		LOG_INF("Starting pairing scan for %d ms", SCAN_TIMEOUT_MS);
+		ble_start_scan(SCAN_MODE_PAIRING, 0, SCAN_TIMEOUT_MS);
 
-    ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_INACTIVE);
-    if (ret < 0) {
-        printk("GPIO configure failed: %d\n", ret);
-        return 0;
-    }
+		k_sleep(K_MSEC(SCAN_TIMEOUT_MS + 5000));
+	}
 
-    printk("LED configured\n");
-
-    /* 開機先快速閃 10 次 */
-    for (int i = 0; i < 10; i++) {
-        gpio_pin_toggle_dt(&led);
-        k_msleep(100);
-    }
-
-    printk("Entering main loop\n");
-
-    while (1) {
-        gpio_pin_toggle_dt(&led);
-        printk("toggle\n");
-        k_msleep(1000);
-    }
-
-    return 0;
+	return 0;
 }

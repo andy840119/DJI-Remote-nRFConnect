@@ -10,10 +10,12 @@ target_include_directories(app PRIVATE
     utils/compat
     utils/crc
     protocol
+    ble
 )
 
 target_sources(app PRIVATE
     src/main.c
+    src/port_stubs.c
     utils/compat/esp_err.c
     utils/crc/custom_crc16.c
     utils/crc/custom_crc32.c
@@ -21,4 +23,5 @@ target_sources(app PRIVATE
     protocol/dji_protocol_data_processor.c
     protocol/dji_protocol_data_descriptors.c
     protocol/dji_protocol_data_structures.c
+    ble/ble.c
 )

@@ -24,4 +24,11 @@
 #define ESP_LOGD(tag, fmt, ...) LOG_DBG("[" tag "] " fmt, ##__VA_ARGS__)
 #define ESP_LOGV(tag, fmt, ...) LOG_DBG("[" tag "] " fmt, ##__VA_ARGS__)
 
+/* Log level argument of ESP_LOG_BUFFER_HEX_LEVEL -- kept for source
+ * compatibility; Zephyr picks the level from the macro that is used. */
+#define ESP_LOG_INFO 3
+
+#define ESP_LOG_BUFFER_HEX(tag, buffer, len)                LOG_HEXDUMP_INF(buffer, len, "[" tag "]")
+#define ESP_LOG_BUFFER_HEX_LEVEL(tag, buffer, len, level)   LOG_HEXDUMP_INF(buffer, len, "[" tag "]")
+
 #endif /* __ESP_LOG_H__ */
