@@ -71,6 +71,8 @@ Full pin rationale and the devicetree source:
 | [`docs/getting-started.md`](docs/getting-started.md) | **Setup** – installing the nRF Connect SDK, building, flashing |
 | [`docs/hardware-promicro-nrf52840.md`](docs/hardware-promicro-nrf52840.md) | **Hardware Reference** – pin assignments and wiring |
 | [`docs/porting-notes.md`](docs/porting-notes.md) | **Porting Reference** – how each ESP-IDF concept maps to Zephyr |
+| [`docs/memory-comparison.md`](docs/memory-comparison.md) | **Memory Comparison** – measured RAM/ROM of the original firmware vs this port |
+| [`docs/hardware-options.md`](docs/hardware-options.md) | **Hardware Options** – which boards to buy, on the nRF52840 and the ESP32 side |
 
 The original project's user manual and implementation notes still describe how
 this firmware behaves:

@@ -139,6 +139,18 @@ are only used in log messages.
 
 ---
 
+## Memory
+
+Measured RAM and ROM for both platforms, and what the numbers mean, are in
+[memory-comparison.md](memory-comparison.md). The short version: the port is
+~32% smaller in flash but has far less of it (89% of the 792 kB application
+slot used), and uses no more RAM than the original once ESP-IDF's runtime heap
+allocations are accounted for.
+
+Board choices on both platforms are in [hardware-options.md](hardware-options.md).
+
+---
+
 ## Known differences in behaviour
 
 - **Status LED**: the original shows connection state as WS2812 colours. This
