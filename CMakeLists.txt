@@ -17,6 +17,7 @@ target_sources(app PRIVATE
     src/main.c
     src/port_stubs.c
     utils/compat/esp_err.c
+    utils/compat/freertos_compat.c
     utils/crc/custom_crc16.c
     utils/crc/custom_crc32.c
     protocol/dji_protocol_parser.c
