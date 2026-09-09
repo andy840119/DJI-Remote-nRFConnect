@@ -1,0 +1,181 @@
+/*
+ * Pro Micro nRF52840 (SuperMini / nice!nano compatible) board customisation
+ * for DJI-Remote-nRFConnect.
+ *
+ * Pin map (see docs/hardware-promicro-nrf52840.md):
+ *
+ *   Display (ST7789V, SPIM3 @ 32 MHz)
+ *     SCK    P0.20    MOSI   P0.17    CS  P0.22
+ *     DC     P0.24    RESET  P1.00    BL  P0.11 (PWM1 ch0)
+ *   GPS (UART0, 9600 8N1)
+ *     TX ->  P0.09    RX <-  P0.10
+ *   Buttons (internal pull-up, active low)
+ *     A P0.02          B P0.29          C P0.31
+ *   Status LED
+ *     P0.15 (on-board red LED)
+ *
+ * Free for future use: P0.06 P0.08 P1.04 P1.06 P1.11 P1.13 P1.15
+ */
+
+#include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
+/ {
+	chosen {
+		zephyr,display = &st7789v_display;
+	};
+
+	/*
+	 * Buttons A/B/C -- same roles as the internal M5Stack Basic buttons
+	 * in the original project (A = shutter, B = next, C = options).
+	 */
+	buttons {
+		compatible = "gpio-keys";
+
+		button_a: button_a {
+			gpios = <&gpio0 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Button A";
+			zephyr,code = <INPUT_KEY_0>;
+		};
+
+		button_b: button_b {
+			gpios = <&gpio0 29 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Button B";
+			zephyr,code = <INPUT_KEY_1>;
+		};
+
+		button_c: button_c {
+			gpios = <&gpio0 31 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Button C";
+			zephyr,code = <INPUT_KEY_2>;
+		};
+	};
+
+	/* Display backlight -- replaces the ESP32 LEDC channel */
+	pwmleds {
+		compatible = "pwm-leds";
+
+		display_bl: display_bl {
+			pwms = <&pwm1 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
+			label = "Display backlight";
+		};
+	};
+
+	mipi_dbi_display {
+		compatible = "zephyr,mipi-dbi-spi";
+		spi-dev = <&spi3>;
+		dc-gpios = <&gpio0 24 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio1 0 GPIO_ACTIVE_LOW>;
+		write-only;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		/*
+		 * 2.0"/2.4" 240x320 ST7789V panel driven in landscape
+		 * (320x240) to match the original M5Stack Basic layout.
+		 * mdac = MV | MX -> row/column exchange + column mirror.
+		 */
+		st7789v_display: st7789v@0 {
+			compatible = "sitronix,st7789v";
+			reg = <0>;
+			mipi-max-frequency = <32000000>;
+			mipi-mode = "MIPI_DBI_MODE_SPI_4WIRE";
+			width = <320>;
+			height = <240>;
+			x-offset = <0>;
+			y-offset = <0>;
+			vcom = <0x19>;
+			gctrl = <0x35>;
+			vrhs = <0x12>;
+			vdvs = <0x20>;
+			mdac = <0x60>;
+			gamma = <0x01>;
+			colmod = <0x05>;
+			lcm = <0x2c>;
+			porch-param = [0c 0c 00 33 33];
+			cmd2en-param = [5a 69 02 01];
+			pwctrl1-param = [a4 a1];
+			pvgam-param = [d0 04 0d 11 13 2b 3f 54 4c 18 0d 0b 1f 23];
+			nvgam-param = [d0 04 0c 11 13 2c 3f 44 51 2f 1f 1f 20 23];
+			ram-param = [00 f0];
+			rgb-param = [cd 08 14];
+		};
+	};
+
+	aliases {
+		btn-a = &button_a;
+		btn-b = &button_b;
+		btn-c = &button_c;
+		display-bl = &display_bl;
+		gps-uart = &uart0;
+		status-led = &led0;
+	};
+};
+
+&pinctrl {
+	/* SPIM3 -- display, write only, no MISO */
+	spi3_default: spi3_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 20)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 17)>;
+			nordic,drive-mode = <NRF_DRIVE_H0H1>;
+		};
+	};
+
+	spi3_sleep: spi3_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 20)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 17)>;
+			low-power-enable;
+		};
+	};
+
+	/* PWM1 -- display backlight */
+	pwm1_default: pwm1_default {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 0, 11)>;
+		};
+	};
+
+	pwm1_sleep: pwm1_sleep {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 0, 11)>;
+			low-power-enable;
+		};
+	};
+};
+
+&spi3 {
+	compatible = "nordic,nrf-spim";
+	status = "okay";
+	cs-gpios = <&gpio0 22 GPIO_ACTIVE_LOW>;
+	pinctrl-0 = <&spi3_default>;
+	pinctrl-1 = <&spi3_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&pwm1 {
+	status = "okay";
+	pinctrl-0 = <&pwm1_default>;
+	pinctrl-1 = <&pwm1_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+/* UART0 is free for the GPS module -- the console runs over USB CDC ACM */
+&uart0 {
+	current-speed = <9600>;
+};
+
+/* Not used -- frees P1.00 / P0.11 (i2c0) and P1.04 / P1.06 (i2c1) */
+&i2c0 {
+	status = "disabled";
+};
+
+&i2c1 {
+	status = "disabled";
+};
+
+/* Not used -- frees P1.01 / P1.02 / P1.07 */
+&spi2 {
+	status = "disabled";
+};

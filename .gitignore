@@ -1,0 +1,8 @@
+# Zephyr / nRF Connect SDK build output
+build/
+build_*/
+twister-out*/
+
+# Editor / OS
+.vscode/
+.DS_Store

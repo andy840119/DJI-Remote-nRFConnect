@@ -1,0 +1,11 @@
+# DJI-Remote-nRFConnect application configuration
+
+menu "DJI Remote"
+
+module = DJI_REMOTE
+module-str = DJI Remote
+source "subsys/logging/Kconfig.template.log_config"
+
+endmenu
+
+source "Kconfig.zephyr"
