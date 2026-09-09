@@ -55,6 +55,10 @@ typedef unsigned int UBaseType_t;
 
 typedef struct compat_task *TaskHandle_t;
 
+/* ESP-IDF measures stacks in bytes, so StackType_t is a byte there too and
+ * uxTaskGetStackHighWaterMark() returns bytes. */
+typedef uint8_t StackType_t;
+
 #define vTaskDelay(ticks)     k_msleep((int32_t)(ticks))
 #define xTaskGetTickCount()   ((TickType_t)k_uptime_get_32())
 
@@ -67,6 +71,12 @@ BaseType_t xTaskCreate(void (*pvTaskCode)(void *), const char *pcName,
 		       UBaseType_t uxPriority, TaskHandle_t *pxCreatedTask);
 
 void vTaskDelete(TaskHandle_t xTask);
+
+/**
+ * @brief Unused stack space of a task, in bytes.
+ * @param xTask Task to query, or NULL for the calling task.
+ */
+UBaseType_t uxTaskGetStackHighWaterMark(TaskHandle_t xTask);
 
 /* Zephyr reschedules on its own when leaving an ISR */
 #define portYIELD_FROM_ISR(...)  do { } while (0)

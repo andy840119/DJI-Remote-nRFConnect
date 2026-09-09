@@ -410,3 +410,14 @@ void vTaskDelete(TaskHandle_t xTask)
 	xTask->in_use = false;
 	k_mutex_unlock(&s_pool_lock);
 }
+
+UBaseType_t uxTaskGetStackHighWaterMark(TaskHandle_t xTask)
+{
+	struct k_thread *thread = (xTask == NULL) ? k_current_get() : &xTask->thread;
+	size_t unused = 0;
+
+	if (k_thread_stack_space_get(thread, &unused) != 0) {
+		return 0;
+	}
+	return (UBaseType_t)unused;
+}
