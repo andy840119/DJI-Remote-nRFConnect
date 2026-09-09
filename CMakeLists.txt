@@ -11,6 +11,7 @@ target_include_directories(app PRIVATE
     utils/crc
     protocol
     ble
+    data
 )
 
 target_sources(app PRIVATE
@@ -25,4 +26,5 @@ target_sources(app PRIVATE
     protocol/dji_protocol_data_descriptors.c
     protocol/dji_protocol_data_structures.c
     ble/ble.c
+    data/data.c
 )
