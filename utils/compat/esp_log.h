@@ -18,17 +18,20 @@
 
 #include <zephyr/logging/log.h>
 
-#define ESP_LOGE(tag, fmt, ...) LOG_ERR("[" tag "] " fmt, ##__VA_ARGS__)
-#define ESP_LOGW(tag, fmt, ...) LOG_WRN("[" tag "] " fmt, ##__VA_ARGS__)
-#define ESP_LOGI(tag, fmt, ...) LOG_INF("[" tag "] " fmt, ##__VA_ARGS__)
-#define ESP_LOGD(tag, fmt, ...) LOG_DBG("[" tag "] " fmt, ##__VA_ARGS__)
-#define ESP_LOGV(tag, fmt, ...) LOG_DBG("[" tag "] " fmt, ##__VA_ARGS__)
+/* The tag is passed as an argument rather than concatenated, because the
+ * ported files declare it both ways: `#define TAG "X"` and
+ * `static const char *TAG = "X";`. */
+#define ESP_LOGE(tag, fmt, ...) LOG_ERR("[%s] " fmt, tag, ##__VA_ARGS__)
+#define ESP_LOGW(tag, fmt, ...) LOG_WRN("[%s] " fmt, tag, ##__VA_ARGS__)
+#define ESP_LOGI(tag, fmt, ...) LOG_INF("[%s] " fmt, tag, ##__VA_ARGS__)
+#define ESP_LOGD(tag, fmt, ...) LOG_DBG("[%s] " fmt, tag, ##__VA_ARGS__)
+#define ESP_LOGV(tag, fmt, ...) LOG_DBG("[%s] " fmt, tag, ##__VA_ARGS__)
 
 /* Log level argument of ESP_LOG_BUFFER_HEX_LEVEL -- kept for source
  * compatibility; Zephyr picks the level from the macro that is used. */
 #define ESP_LOG_INFO 3
 
-#define ESP_LOG_BUFFER_HEX(tag, buffer, len)                LOG_HEXDUMP_INF(buffer, len, "[" tag "]")
-#define ESP_LOG_BUFFER_HEX_LEVEL(tag, buffer, len, level)   LOG_HEXDUMP_INF(buffer, len, "[" tag "]")
+#define ESP_LOG_BUFFER_HEX(tag, buffer, len)                LOG_HEXDUMP_INF(buffer, len, tag)
+#define ESP_LOG_BUFFER_HEX_LEVEL(tag, buffer, len, level)   LOG_HEXDUMP_INF(buffer, len, tag)
 
 #endif /* __ESP_LOG_H__ */
