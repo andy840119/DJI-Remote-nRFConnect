@@ -15,4 +15,10 @@ target_include_directories(app PRIVATE
 target_sources(app PRIVATE
     src/main.c
     utils/compat/esp_err.c
+    utils/crc/custom_crc16.c
+    utils/crc/custom_crc32.c
+    protocol/dji_protocol_parser.c
+    protocol/dji_protocol_data_processor.c
+    protocol/dji_protocol_data_descriptors.c
+    protocol/dji_protocol_data_structures.c
 )
